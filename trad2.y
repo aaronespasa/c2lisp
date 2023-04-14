@@ -38,11 +38,21 @@ typedef struct s_attr {
 %token PRINT         // identifica la impresión de cadenas literales y expresiones
 %token MAIN          // identifica el comienzo del proc. main
 %token WHILE         // identifica el bucle main
+%token AND           // identifica el operador AND
+%token OR            // identifica el operador OR
+%token NEQ           // identifica el operador !=
+%token EQ            // identifica el operador ==
+%token LEQ           // identifica el operador <=
+%token GEQ           // identifica el operador >=
 
-%right '='                    // es la ultima operacion que se debe realizar
-%left '+' '-'                 // menor orden de precedencia
-%left '*' '/'                 // orden de precedencia intermedio
-%left UNARY_SIGN              // mayor orden de precedencia
+%right '=' // es la ultima operacion que se debe realizar
+%left OR // lower precedence
+%left AND // higher precedence than OR
+%left EQ NEQ // equal precedence, higher than AND and OR
+%left '<' '>' LEQ GEQ // equal precedence, higher than EQ and NEQ
+%left '+' '-' // higher precedence than relational operators
+%left '*' '/' // higher precedence than addition and subtraction
+%nonassoc UNARY_SIGN // highest precedence, nonassociative
 
 %%                            // Seccion 3 Gramatica - Semantico
 
@@ -69,10 +79,14 @@ funcion:   MAIN '(' ')' '{' sentencias '}'  { sprintf (temp, "(defun main () \n%
                                                 $$.code = gen_code (temp) ; }
             ;
 
-sentencias: sentencia ';'                   { sprintf (temp, "\t%s", $1.code) ;
-                                                $$.code = gen_code (temp) ; }
-            | sentencias sentencia ';'      { sprintf (temp, "%s\n\t%s", $1.code, $2.code) ;
-                                                $$.code = gen_code (temp) ; }
+sentencias: sentencia ';'                                                   { sprintf (temp, "\t%s", $1.code) ;
+                                                                                $$.code = gen_code (temp) ; }
+            | sentencias sentencia ';'                                      { sprintf (temp, "%s\n\t%s", $1.code, $2.code) ;
+                                                                                $$.code = gen_code (temp) ; }
+            | WHILE '(' expresion ')' '{' sentencia ';' '}'                     { sprintf (temp, "\t(loop while %s do %s)", $3.code, $6.code) ;
+                                                                                $$.code = gen_code (temp) ; }
+            | sentencias WHILE '(' expresion ')' '{' sentencia ';' '}'           { sprintf (temp, "%s\n\t(loop while %s do %s)", $1.code, $4.code, $7.code) ;
+                                                                                $$.code = gen_code (temp) ; }
             ;
 
 sentencia:    IDENTIF '=' expresion      { sprintf (temp, "(setq %s %s)", $1.code, $3.code) ; 
@@ -118,6 +132,22 @@ expresion:      termino                  { $$ = $1 ; }
                                            $$.code = gen_code (temp) ; }
             |   expresion '/' expresion  { sprintf (temp, "(/ %s %s)", $1.code, $3.code) ;
                                            $$.code = gen_code (temp) ; }
+            |   expresion AND expresion  { sprintf (temp, "(and %s %s)", $1.code, $3.code) ;
+                                           $$.code = gen_code (temp) ; }
+            |   expresion OR expresion   { sprintf (temp, "(or %s %s)", $1.code, $3.code) ;
+                                             $$.code = gen_code (temp) ; }
+            |   expresion EQ expresion   { sprintf (temp, "(= %s %s)", $1.code, $3.code) ;
+                                             $$.code = gen_code (temp) ; }
+            |   expresion NEQ expresion  { sprintf (temp, "(/= %s %s)", $1.code, $3.code) ;
+                                                $$.code = gen_code (temp) ; }
+            |   expresion LEQ expresion  { sprintf (temp, "(<= %s %s)", $1.code, $3.code) ;
+                                                $$.code = gen_code (temp) ; }
+            |   expresion GEQ expresion  { sprintf (temp, "(>= %s %s)", $1.code, $3.code) ;
+                                                $$.code = gen_code (temp) ; }
+            |   expresion '<' expresion  { sprintf (temp, "(< %s %s)", $1.code, $3.code) ;
+                                                $$.code = gen_code (temp) ; }
+            |   expresion '>' expresion  { sprintf (temp, "(> %s %s)", $1.code, $3.code) ;
+                                                $$.code = gen_code (temp) ; }
             ;
 
 termino:        operando                            { $$ = $1 ; }                          
@@ -192,6 +222,12 @@ t_keyword keywords [] = { // define las palabras reservadas y los
     "int",         INTEGER,
     "puts",        PUTS,
     "printf",      PRINT,
+    "&&",          AND,
+    "||",          OR,
+    "!=",          NEQ,
+    "==",          EQ,
+    "<=",          LEQ,
+    ">=",          GEQ,
     NULL,          0               // para marcar el fin de la tabla
 } ;
 
@@ -301,6 +337,49 @@ int yylex ()
             c = getchar () ;
             return (PRINT) ;
         }
+    }
+
+    // recognise &&
+    if (c == '&' && (cc = getchar ()) == '&') {
+        c = getchar () ;
+        return (AND) ;
+    }
+
+    // recognise ||
+    if (c == '|' && (cc = getchar ()) == '|') {
+        c = getchar () ;
+        return (OR) ;
+    }
+
+    // recognise !=
+    if (c == '!' && (cc = getchar ()) == '=') {
+        c = getchar () ;
+        return (NEQ) ;
+    }
+
+    // recognise ==
+    if (c == '=' && (cc = getchar ()) == '=') {
+        c = getchar () ;
+        return (EQ) ;
+    }
+
+    // recognise <=
+    if (c == '<' && (cc = getchar ()) == '=') {
+        c = getchar () ;
+        return (LEQ) ;
+    }
+
+    // recognise >=
+    if (c == '>' && (cc = getchar ()) == '=') {
+        c = getchar () ;
+        return (GEQ) ;
+    }
+
+    // recognise while
+    if (c == 'w' && (cc = getchar ()) == 'h' && (cc = getchar ()) == 'i' &&
+        (cc = getchar ()) == 'l' && (cc = getchar ()) == 'e') {
+        c = getchar () ;
+        return (WHILE) ;
     }
 
     if (c == '\"') {
