@@ -70,21 +70,15 @@ sentencia:    IDENTIF '=' expresion      { sprintf (temp, "(setq %s %s)", $1.cod
                                            $$.code = gen_code (temp) ; }
             ;
 
-impresion: STRING                       { sprintf (temp, "(print \"%s\")", $1.code) ;
-                                            $$.code = gen_code (temp) ; }
-            resto_impresion             { sprintf (temp, "%s", $2.code) ;
-                                            $$.code = gen_code (temp) ;}
-            ;
-
-resto_impresion:                         { ; }
-                | ',' STRING             { sprintf (temp, " (print \"%s\")", $2.code) ;
-                                            $$.code = gen_code (temp) ; }
-                  resto_impresion        { sprintf (temp, "%s", $3.code) ;
-                                            $$.code = gen_code (temp) ;}
-                | ',' expresion         { sprintf (temp, " (print \"%s\")", $2.code) ;
-                                            $$.code = gen_code (temp) ; }
-                  resto_impresion        { sprintf (temp, "%s", $3.code) ;
-                                            $$.code = gen_code (temp) ;}
+// allow impresion to be a string or an expresion and concatenate multiple of them with a comma
+impresion:    STRING                     { sprintf (temp, "(print \"%s\")", $1.code) ; 
+                                           $$.code = gen_code (temp) ; }
+            | STRING ',' impresion       { sprintf (temp, "(print \"%s\") %s", $1.code, $3.code) ; 
+                                           $$.code = gen_code (temp) ; }
+            | expresion                  { sprintf (temp, "(print %s)", $1.code) ; 
+                                           $$.code = gen_code (temp) ; }
+            | expresion ',' impresion    { sprintf (temp, "(print %s) %s", $1.code, $3.code) ; 
+                                           $$.code = gen_code (temp) ; }
             ;
             
 
