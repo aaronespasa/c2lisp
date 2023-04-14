@@ -46,18 +46,33 @@ typedef struct s_attr {
 
 %%                            // Seccion 3 Gramatica - Semantico
 
-axioma:       sentencia ';'              { printf ("%s\n", $1.code) ; }
-                r_expr                   { ; }
-            | funcion                  { printf ("%s\n", $1.code) ;}
-                r_expr
+axioma:    r_declar_var declar_func      { ; }
             ;
 
-r_expr:                                  { ; }
-            |   axioma                   { ; }
+declar_var: INTEGER variables ';'      { printf ("%s\n", $2.code) ; }
+            r_declar_var               { ; }
             ;
 
-funcion:   MAIN '(' ')' '{' sentencia ';' '}' { sprintf (temp, "(defun main () \n\t%s\n)\n(main) ;", $5.code) ;
-                                           $$.code = gen_code (temp) ; }
+r_declar_var:                           { ; }
+                |    declar_var         { ; }
+                ;
+
+declar_func: funcion                   { printf("%s\n", $1.code) ; }
+            r_declar_func              { ; }
+            ;
+
+r_declar_func:                          { ; }
+                |    declar_func        { ; }
+                ;
+
+funcion:   MAIN '(' ')' '{' sentencias '}'  { sprintf (temp, "(defun main () \n%s\n)\n(main) ;", $5.code) ;
+                                                $$.code = gen_code (temp) ; }
+            ;
+
+sentencias: sentencia ';'                   { sprintf (temp, "\t%s", $1.code) ;
+                                                $$.code = gen_code (temp) ; }
+            | sentencias sentencia ';'      { sprintf (temp, "%s\n\t%s", $1.code, $2.code) ;
+                                                $$.code = gen_code (temp) ; }
             ;
 
 sentencia:    IDENTIF '=' expresion      { sprintf (temp, "(setq %s %s)", $1.code, $3.code) ; 
@@ -70,7 +85,6 @@ sentencia:    IDENTIF '=' expresion      { sprintf (temp, "(setq %s %s)", $1.cod
                                            $$.code = gen_code (temp) ; }
             ;
 
-// allow impresion to be a string or an expresion and concatenate multiple of them with a comma
 impresion:    STRING                     { sprintf (temp, "(print \"%s\")", $1.code) ; 
                                            $$.code = gen_code (temp) ; }
             | STRING ',' impresion       { sprintf (temp, "(print \"%s\") %s", $1.code, $3.code) ; 
@@ -82,9 +96,15 @@ impresion:    STRING                     { sprintf (temp, "(print \"%s\")", $1.c
             ;
             
 
-variable:    IDENTIF                   { sprintf (temp, "(setq %s 0)", $1.code) ;
+variables:  variable                    { sprintf (temp, "%s", $1.code) ;
                                            $$.code = gen_code (temp) ; }
-            | IDENTIF '=' NUMBER      { sprintf (temp, "(setq %s %d)", $1.code, $3.value) ;
+            | variable ',' variables    { sprintf (temp, "%s %s", $1.code, $3.code) ;
+                                           $$.code = gen_code (temp) ; }
+            ;
+
+variable:    IDENTIF                    { sprintf (temp, "(setq %s 0)", $1.code) ;
+                                           $$.code = gen_code (temp) ; }
+            | IDENTIF '=' NUMBER        { sprintf (temp, "(setq %s %d)", $1.code, $3.value) ;
                                            $$.code = gen_code (temp) ; }
             ;
 
@@ -100,18 +120,18 @@ expresion:      termino                  { $$ = $1 ; }
                                            $$.code = gen_code (temp) ; }
             ;
 
-termino:        operando                           { $$ = $1 ; }                          
-            |   '+' operando %prec UNARY_SIGN      { sprintf (temp, "(+ %s)", $2.code) ;
-                                                     $$.code = gen_code (temp) ; }
-            |   '-' operando %prec UNARY_SIGN      { sprintf (temp, "(- %s)", $2.code) ;
-                                                     $$.code = gen_code (temp) ; }    
+termino:        operando                            { $$ = $1 ; }                          
+            |   '+' operando %prec UNARY_SIGN       { sprintf (temp, "(+ %s)", $2.code) ;
+                                                        $$.code = gen_code (temp) ; }
+            |   '-' operando %prec UNARY_SIGN       { sprintf (temp, "(- %s)", $2.code) ;
+                                                        $$.code = gen_code (temp) ; }    
             ;
 
-operando:       IDENTIF                  { sprintf (temp, "%s", $1.code) ;
+operando:       IDENTIF                 { sprintf (temp, "%s", $1.code) ;
                                            $$.code = gen_code (temp) ; }
-            |   NUMBER                   { sprintf (temp, "%d", $1.value) ;
+            |   NUMBER                  { sprintf (temp, "%d", $1.value) ;
                                            $$.code = gen_code (temp) ; }
-            |   '(' expresion ')'        { $$ = $2 ; }
+            |   '(' expresion ')'       { $$ = $2 ; }
             ;
 
 

@@ -2,5 +2,4 @@ Para compilar con bison y ejecutarlo:
 >> bison -d trad2.y && gcc -o trad2 trad2.tab.c && ./trad2
 
 Para ejecutar test:
->>> bison -d trad2.y && gcc -o trad2 trad2.tab.c
->>> cat prueba.c | ./trad2 > prueba.l
+>>> bison -d trad2.y && gcc -o trad2 trad2.tab.c && cat prueba.c | ./trad2 > prueba.l
