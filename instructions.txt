@@ -1,10 +1,6 @@
-Para compilar con bison:
->>> bison -d trad2.y
+Para compilar con bison y ejecutarlo:
+>> bison -d trad2.y && gcc -o trad2 trad2.tab.c && ./trad2
 
-Para compilar el código de C que te generó bison:
->>> gcc -o trad2 trad2.tab.c
-
-Para ejecutar el archivo compilado con C:
->>> ./trad2
-
-bison -d trad2.y && gcc -o trad2 trad2.tab.c && ./trad2
+Para ejecutar test:
+>>> bison -d trad2.y && gcc -o trad2 trad2.tab.c
+>>> cat prueba.c | ./trad2 > prueba.l

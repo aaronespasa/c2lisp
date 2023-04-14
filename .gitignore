@@ -59,3 +59,9 @@ dkms.conf
 trad1
 trad2
 trad3
+
+# pdf file
+*.pdf
+
+# lisp file
+*.l

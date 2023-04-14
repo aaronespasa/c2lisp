@@ -33,7 +33,9 @@ typedef struct s_attr {
 %token NUMBER        
 %token IDENTIF       // Identificador=variable
 %token INTEGER       // identifica el tipo entero
-%token STRING
+%token STRING        // identifica las cadenas literales
+%token PUTS          // identifica la impresión de cadenas literales
+%token PRINT         // identifica la impresión de cadenas literales y expresiones
 %token MAIN          // identifica el comienzo del proc. main
 %token WHILE         // identifica el bucle main
 
@@ -60,21 +62,34 @@ funcion:   MAIN '(' ')' '{' sentencia ';' '}' { sprintf (temp, "(defun main () \
 
 sentencia:    IDENTIF '=' expresion      { sprintf (temp, "(setq %s %s)", $1.code, $3.code) ; 
                                            $$.code = gen_code (temp) ; }
-            | INTEGER variable              { sprintf (temp, "%s", $2.code) ; 
+            | INTEGER variable           { sprintf (temp, "%s", $2.code) ; 
                                            $$.code = gen_code (temp) ; }
-            | '$' '(' expresiones ')'    { $$ = $3 ; }
+            | PUTS '(' STRING ')'        { sprintf (temp, "(print \"%s\")", $3.code) ; 
+                                           $$.code = gen_code (temp) ; }
+            | PRINT '(' impresion ')'    { sprintf (temp, "%s", $3.code) ; 
+                                           $$.code = gen_code (temp) ; }
             ;
+
+impresion: STRING                       { sprintf (temp, "(print \"%s\")", $1.code) ;
+                                            $$.code = gen_code (temp) ; }
+            resto_impresion             { sprintf (temp, "%s", $2.code) ;
+                                            $$.code = gen_code (temp) ;}
+            ;
+
+resto_impresion:                         { ; }
+                | ',' STRING             { sprintf (temp, " (print \"%s\")", $2.code) ;
+                                            $$.code = gen_code (temp) ; }
+                | ',' expresion         { sprintf (temp, " (print \"%s\")", $2.code) ;
+                                            $$.code = gen_code (temp) ; }
+                | ',' resto_impresion   { sprintf (temp, "%s", $2.code) ;
+                                            $$.code = gen_code (temp) ; }
+            ;
+            
 
 variable:    IDENTIF                   { sprintf (temp, "(setq %s 0)", $1.code) ;
                                            $$.code = gen_code (temp) ; }
             | IDENTIF '=' NUMBER      { sprintf (temp, "(setq %s %d)", $1.code, $3.value) ;
                                            $$.code = gen_code (temp) ; }
-            ;
-
-expresiones:    expresion                 { sprintf (temp, "(print %s)", $1.code) ;  
-                                            $$.code = gen_code (temp) ; }
-            |   expresiones ',' expresion { sprintf (temp, "%s (print %s)", $1.code, $3.code) ;  
-                                            $$.code = gen_code (temp) ; }
             ;
 
           
@@ -159,6 +174,8 @@ typedef struct s_keyword { // para las palabras reservadas de C
 t_keyword keywords [] = { // define las palabras reservadas y los
     "main",        MAIN,           // y los token asociados
     "int",         INTEGER,
+    "puts",        PUTS,
+    "printf",      PRINT,
     NULL,          0               // para marcar el fin de la tabla
 } ;
 
@@ -252,6 +269,21 @@ int yylex ()
     if (c == 'i' && (cc = getchar ()) == 'n' && (cc = getchar ()) == 't') {
         c = getchar () ;
         return (INTEGER) ;
+    }
+
+    // recognise puts
+    if (c == 'p' && (cc = getchar ()) == 'u' && (cc = getchar ()) == 't' &&
+        (cc = getchar ()) == 's') {
+        c = getchar () ;  
+        return (PUTS) ;
+    }
+
+    // recognise printf
+    if (c == 'p' && (cc = getchar ()) == 'r' && (cc = getchar ()) == 'i' &&
+        (cc = getchar ()) == 'n' && (cc = getchar ()) == 't' &&
+        (cc = getchar ()) == 'f') {
+        c = getchar () ;
+        return (PRINT) ;
     }
 
     if (c == '\"') {
