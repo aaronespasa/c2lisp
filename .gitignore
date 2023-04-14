@@ -50,3 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# .tab.c and .tab.h
+*.tab.c
+*.tab.h
+
+# trad files
+trad1
+trad2
+trad3
