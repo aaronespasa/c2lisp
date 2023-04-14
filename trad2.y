@@ -79,10 +79,12 @@ impresion: STRING                       { sprintf (temp, "(print \"%s\")", $1.co
 resto_impresion:                         { ; }
                 | ',' STRING             { sprintf (temp, " (print \"%s\")", $2.code) ;
                                             $$.code = gen_code (temp) ; }
+                  resto_impresion        { sprintf (temp, "%s", $3.code) ;
+                                            $$.code = gen_code (temp) ;}
                 | ',' expresion         { sprintf (temp, " (print \"%s\")", $2.code) ;
                                             $$.code = gen_code (temp) ; }
-                | ',' resto_impresion   { sprintf (temp, "%s", $2.code) ;
-                                            $$.code = gen_code (temp) ; }
+                  resto_impresion        { sprintf (temp, "%s", $3.code) ;
+                                            $$.code = gen_code (temp) ;}
             ;
             
 
@@ -271,19 +273,20 @@ int yylex ()
         return (INTEGER) ;
     }
 
-    // recognise puts
-    if (c == 'p' && (cc = getchar ()) == 'u' && (cc = getchar ()) == 't' &&
-        (cc = getchar ()) == 's') {
-        c = getchar () ;  
-        return (PUTS) ;
-    }
+    // recognise puts and printf (both starts with p)
+    if (c == 'p') {
+        cc = getchar () ;
 
-    // recognise printf
-    if (c == 'p' && (cc = getchar ()) == 'r' && (cc = getchar ()) == 'i' &&
-        (cc = getchar ()) == 'n' && (cc = getchar ()) == 't' &&
-        (cc = getchar ()) == 'f') {
-        c = getchar () ;
-        return (PRINT) ;
+        // recognise puts
+        if (cc == 'u' && (cc = getchar ()) == 't' && (cc = getchar ()) == 's') {
+            c = getchar () ;  
+            return (PUTS) ;
+        }
+        // recognise printf
+        else if (cc == 'r' && (cc = getchar ()) == 'i' && (cc = getchar ()) == 'n' && (cc = getchar ()) == 't' && (cc = getchar ()) == 'f') {
+            c = getchar () ;
+            return (PRINT) ;
+        }
     }
 
     if (c == '\"') {
