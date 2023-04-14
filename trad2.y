@@ -83,9 +83,9 @@ sentencias: sentencia ';'                                                   { sp
                                                                                 $$.code = gen_code (temp) ; }
             | sentencias sentencia ';'                                      { sprintf (temp, "%s\n\t%s", $1.code, $2.code) ;
                                                                                 $$.code = gen_code (temp) ; }
-            | WHILE '(' expresion ')' '{' sentencia ';' '}'                     { sprintf (temp, "\t(loop while %s do %s)", $3.code, $6.code) ;
+            | WHILE '(' expresion ')' '{' sentencias '}'                { sprintf (temp, "\t(loop while %s do \n\t%s\n\t)", $3.code, $6.code) ;
                                                                                 $$.code = gen_code (temp) ; }
-            | sentencias WHILE '(' expresion ')' '{' sentencia ';' '}'           { sprintf (temp, "%s\n\t(loop while %s do %s)", $1.code, $4.code, $7.code) ;
+            | sentencias WHILE '(' expresion ')' '{' sentencias '}'         { sprintf (temp, "%s\n\t(loop while %s do \n\t%s\n\t)", $1.code, $4.code, $7.code) ;
                                                                                 $$.code = gen_code (temp) ; }
             ;
 

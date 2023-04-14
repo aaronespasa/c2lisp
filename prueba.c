@@ -12,6 +12,9 @@ main () {
     printf ( "LESS OR EQUAL" , 3 <= 4 );
     printf ( "Precendence" , 3 + 4 * 5 );
     printf ( "Precendence (logic)" , 3 && 4 || 5 );
-    
-    while ( 3 || 4 ) { puts ( "A three or a four" ); }
+
+    while ( 3 || 4 ) {
+        puts ( "A three or a four" );
+        printf ( "This is a nice multiplication" , 17 * 3 );
+    }
 }
