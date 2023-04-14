@@ -1,0 +1,10 @@
+Para compilar con bison:
+>>> bison -d trad1.y
+
+Para compilar el código de C que te generó bison:
+>>> gcc -o trad1 trad1.tab.c
+
+Para ejecutar el archivo compilado con C:
+>>> ./trad1
+
+bison -d trad1.y && gcc -o trad1 trad1.tab.c && ./trad1
