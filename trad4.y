@@ -17,12 +17,22 @@ char *char_to_string (char) ;
 
 char temp [2048] ;
 
+// typedef struct vector_list {
+//     char name[256];
+//     int values[256];
+//     uint8_t size = 0;
+// } vector_list;
+
+// vector_list vectors[256];
+
 // Definitions for explicit attributes
 
 typedef struct s_attr {
         int value ;
         char *code ;
 } t_attr ;
+
+
 
 #define YYSTYPE t_attr
 
@@ -54,13 +64,13 @@ typedef struct s_attr {
 %left EQ NEQ // equal precedence, higher than AND and OR
 %left '<' '>' LEQ GEQ // equal precedence, higher than EQ and NEQ
 %left '+' '-' // higher precedence than relational operators
-%left '*' '/' // higher precedence than addition and subtraction
+%left '*' '/' '%' // higher precedence than addition and subtraction
 %nonassoc UNARY_SIGN // highest precedence, nonassociative
 
 %%                            // Seccion 3 Gramatica - Semantico
 
 axioma:    r_declar_var declar_func      { ; }
-            ;
+            ; 
 
 declar_var: INTEGER variables ';'      { printf ("%s\n", $2.code) ; }
             r_declar_var               { ; }
@@ -78,7 +88,7 @@ r_declar_func:                          { ; }
                 |    declar_func        { ; }
                 ;
 
-funcion:   MAIN '(' ')' '{' sentencias '}'  { sprintf (temp, "(defun main () \n%s\n)\n(main) ;", $5.code) ;
+funcion:   MAIN '(' ')' '{' sentencias '}'  { sprintf (temp, "(defun main () \n%s\n)", $5.code) ;
                                                 $$.code = gen_code (temp) ; }
             ;
 
@@ -109,24 +119,37 @@ sentencia:  var_assign                    { sprintf (temp, "%s", $1.code) ;
                                            $$.code = gen_code (temp) ; }
             | PUTS '(' STRING ')'        { sprintf (temp, "(print \"%s\")", $3.code) ; 
                                            $$.code = gen_code (temp) ; }
-            | PRINT '(' impresion ')'    { sprintf (temp, "%s", $3.code) ; 
-                                           $$.code = gen_code (temp) ; }
+            | PRINT '(' STRING ',' impresion ')'    { sprintf (temp, "%s", $5.code) ; 
+                                                       $$.code = gen_code (temp) ; }
             ;
 
-var_assign : IDENTIF '=' expresion      { sprintf (temp, "(setq %s %s)", $1.code, $3.code) ; 
-                                           $$.code = gen_code (temp) ; }
-            | INTEGER variable           { sprintf (temp, "%s", $2.code) ; 
-                                           $$.code = gen_code (temp) ; }
+var_assign : IDENTIF '=' expresion                  { sprintf (temp, "(setq %s %s)", $1.code, $3.code) ; 
+                                                        $$.code = gen_code (temp) ; }
+            | INTEGER variable                      { sprintf (temp, "%s", $2.code) ; 
+                                                        $$.code = gen_code (temp) ; }
+            | IDENTIF '[' NUMBER ']' '=' NUMBER { sprintf (temp, "(setf (aref %s %d) %d)", $1.code, $3.value, $6.value) ;
+                                                        $$.code = gen_code (temp) ; }
+            | IDENTIF '[' IDENTIF ']' '=' NUMBER { sprintf (temp, "(setf (aref %s %s) %d)", $1.code, $3.code, $6.value) ;
+                                                        $$.code = gen_code (temp) ; }
+            | IDENTIF '[' NUMBER ']' '=' IDENTIF { sprintf (temp, "(setf (aref %s %d) %s)", $1.code, $3.value, $6.code) ;
+                                                        $$.code = gen_code (temp) ; }
+            | IDENTIF '[' IDENTIF ']' '=' IDENTIF { sprintf (temp, "(setf (aref %s %s) %s)", $1.code, $3.code, $6.code) ;
+                                                        $$.code = gen_code (temp) ; }
             ;
 
-impresion:    STRING                     { sprintf (temp, "(print \"%s\")", $1.code) ; 
-                                           $$.code = gen_code (temp) ; }
-            | STRING ',' impresion       { sprintf (temp, "(print \"%s\") %s", $1.code, $3.code) ; 
-                                           $$.code = gen_code (temp) ; }
-            | expresion                  { sprintf (temp, "(print %s)", $1.code) ; 
-                                           $$.code = gen_code (temp) ; }
-            | expresion ',' impresion    { sprintf (temp, "(print %s) %s", $1.code, $3.code) ; 
-                                           $$.code = gen_code (temp) ; }
+impresion :                                            { ; }
+            | STRING                                   { sprintf (temp, "(print \"%s\")", $1.code) ; 
+                                                          $$.code = gen_code (temp) ; }
+            | STRING ',' impresion                     { sprintf (temp, "(print \"%s\") %s", $1.code, $3.code) ; 
+                                                          $$.code = gen_code (temp) ; }
+            | IDENTIF '[' NUMBER ']'                   { sprintf (temp, "(print (aref %s %d))", $1.code, $3.value) ; 
+                                                          $$.code = gen_code (temp) ; }
+            | IDENTIF '[' NUMBER ']' ',' impresion     { sprintf (temp, "(print (aref %s %d)) %s", $1.code, $3.value, $6.code) ; 
+                                                          $$.code = gen_code (temp) ; }
+            | expresion                                { sprintf (temp, "(print %s)", $1.code) ; 
+                                                          $$.code = gen_code (temp) ; }
+            | expresion ',' impresion                  { sprintf (temp, "(print %s) %s", $1.code, $3.code) ; 
+                                                          $$.code = gen_code (temp) ; }
             ;
             
 
@@ -137,10 +160,13 @@ variables:  variable                    { sprintf (temp, "%s", $1.code) ;
             ;
 
 variable:    IDENTIF                    { sprintf (temp, "(setq %s 0)", $1.code) ;
-                                           $$.code = gen_code (temp) ; }
+                                            $$.code = gen_code (temp) ; }
+            | IDENTIF '[' NUMBER ']'    { sprintf (temp, "(setq %s (make-array %d))", $1.code, $3.value) ;
+                                            $$.code = gen_code (temp) ; }
             | IDENTIF '=' NUMBER        { sprintf (temp, "(setq %s %d)", $1.code, $3.value) ;
                                            $$.code = gen_code (temp) ; }
             ;
+
           
 expresion:      termino                  { $$ = $1 ; }
             |   expresion '+' expresion  { sprintf (temp, "(+ %s %s)", $1.code, $3.code) ;
@@ -150,6 +176,8 @@ expresion:      termino                  { $$ = $1 ; }
             |   expresion '*' expresion  { sprintf (temp, "(* %s %s)", $1.code, $3.code) ;
                                             $$.code = gen_code (temp) ; }
             |   expresion '/' expresion  { sprintf (temp, "(/ %s %s)", $1.code, $3.code) ;
+                                            $$.code = gen_code (temp) ; }
+            |   expresion '%' expresion  { sprintf (temp, "(mod %s %s)", $1.code, $3.code) ;
                                             $$.code = gen_code (temp) ; }
             |   expresion AND expresion  { sprintf (temp, "(and %s %s)", $1.code, $3.code) ;
                                             $$.code = gen_code (temp) ; }
@@ -219,6 +247,31 @@ char *int_to_string (int n)
     sprintf (temp, "%d", n) ;
     return gen_code (temp) ;
 }
+
+// void save_vector(char* name) {
+//     for(int i = 0; i < 256; i++) {
+//         if(strcmp(vectors[i].name , name) == 0) {
+//             return;
+//         }
+//     }
+
+//     for(int i = 0; i < 256; i++) {
+//         if(vectors[i].size == 0) {
+//             strcpy(vectors[i].name, name);
+//             return;
+//         }
+//     }
+// }
+
+// int save_vector_value(char* name, int value, int index) {
+//     for(int i = 0; i < 256; i++) {
+//         if(strcmp(vectors[i].name , name) == 0) {
+//             vectors[i].values[index] = value;
+//             vectors[i].size++;
+//             return 0;
+//         }
+//     }
+// }
 
 char *char_to_string (char c)
 {
