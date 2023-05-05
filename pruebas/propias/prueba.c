@@ -4,8 +4,29 @@ mifuncion ( int parametroa , int parametrob ) {
     puts("holaaa") ;
     puts("holaaa") ;
     puts("holaaa") ;
-
+    return (v * v);
 }
+
+mifuncion2 ( int parametroa , int parametrob ) {
+    puts("holaaa") ;
+    puts("holaaa") ;
+    puts("holaaa") ;
+    return v;
+}
+
+mifuncion ( int parametroa , int parametrob ) {
+    puts("holaaa") ;
+    puts("holaaa") ;
+    puts("holaaa") ;
+    return ;
+}
+
+mifuncion ( int parametroa , int parametrob ) {
+    puts("holaaa") ;
+    puts("holaaa") ;
+    puts("holaaa") ;
+}
+
 
 main ( ) {
     printf("%s", vector);

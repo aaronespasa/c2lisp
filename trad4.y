@@ -40,23 +40,24 @@ typedef struct s_attr {
 
 // Definitions for explicit attributes
 
-%token NUMBER        
-%token IDENTIF       // Identificador=variable
-%token INTEGER       // identifica el tipo entero
-%token STRING        // identifica las cadenas literales
-%token PUTS          // identifica la impresión de cadenas literales
-%token PRINT         // identifica la impresión de cadenas literales y expresiones
-%token MAIN          // identifica el comienzo del proc. main
-%token WHILE         // identifica el bucle main
-%token FOR           // identifica el bucle for
-%token IF            // identifica el condicional if
-%token ELSE         // identifica el condicional else
-%token AND           // identifica el operador AND
-%token OR            // identifica el operador OR
-%token NEQ           // identifica el operador !=
-%token EQ            // identifica el operador ==
-%token LEQ           // identifica el operador <=
-%token GEQ           // identifica el operador >=
+%token RETURN           // identifica el retorno de una funcion
+%token NUMBER           // identifica los numeros
+%token IDENTIF          // Identificador=variable
+%token INTEGER          // identifica el tipo entero
+%token STRING           // identifica las cadenas literales
+%token PUTS             // identifica la impresión de cadenas literales
+%token PRINT            // identifica la impresión de cadenas literales y expresiones
+%token MAIN             // identifica el comienzo del proc. main
+%token WHILE            // identifica el bucle main
+%token FOR              // identifica el bucle for
+%token IF               // identifica el condicional if
+%token ELSE             // identifica el condicional else
+%token AND              // identifica el operador AND
+%token OR               // identifica el operador OR
+%token NEQ              // identifica el operador !=
+%token EQ               // identifica el operador ==
+%token LEQ              // identifica el operador <=
+%token GEQ              // identifica el operador >=
 
 %right '=' // es la ultima operacion que se debe realizar
 %left OR // lower precedence
@@ -88,21 +89,28 @@ r_declar_func:                          { ; }
                 |      declar_func      { ; }
                 ;
 
-funcion:   MAIN '(' ')' '{' sentencias '}'            { sprintf (temp, "(defun main () \n%s\n)", $5.code) ;
+funcion:    MAIN '(' ')' '{' sentencias '}'            { sprintf (temp, "(defun main () \n%s\n)", $5.code) ;
                                                                     $$.code = gen_code (temp) ; }
-            | IDENTIF '(' parametros ')' '{' sentencias '}'      { sprintf (temp, "(defun %s (%s) \n%s\n)", $1.code, $3.code, $6.code) ;
+            | IDENTIF '(' parametros ')' '{' sentencias retorno '}'      { sprintf (temp, "(defun %s (%s) \n%s\n\t%s\n)", $1.code, $3.code, $6.code, $7.code) ;
                                                                     $$.code = gen_code (temp) ; }
             ;
 
-parametros:                                { ; }       
-            | INTEGER IDENTIF ',' parametros       { sprintf (temp, "%s %s, %s", $1.code, $2.code, $4.code) ;
-                                                                    $$.code = gen_code (temp) ; }
-            | INTEGER IDENTIF                      { sprintf (temp, "%s %s", $1.code, $2.code) ;
-                                                                    $$.code = gen_code (temp) ; }
-            // | IDENTIF ',' parametros        { sprintf (temp, "%s %s", $1.code, $3.code) ;
-            //                                                         $$.code = gen_code (temp) ; }
-            // | IDENTIF                      { sprintf (temp, "%s", $1.code) ;
-            //                                                         $$.code = gen_code (temp) ; }
+parametros:                                         { ; }       
+            | INTEGER IDENTIF ',' parametros        { sprintf (temp, "%s %s", $2.code, $4.code) ;
+                                                        $$.code = gen_code (temp) ; }
+            | INTEGER IDENTIF                       { sprintf (temp, "%s", $2.code) ;
+                                                        $$.code = gen_code (temp) ; }
+            // | IDENTIF ',' parametros             { sprintf (temp, "%s %s", $1.code, $3.code) ;
+            //                                          $$.code = gen_code (temp) ; }
+            // | IDENTIF                            { sprintf (temp, "%s", $1.code) ;
+            //                                          $$.code = gen_code (temp) ; }
+            ;
+
+retorno:                                    { ; }  // La funcion no contiene un return
+            | RETURN expresion ';'            { sprintf (temp, "%s", $2.code) ;
+                                                $$.code = gen_code (temp) ; }
+            | RETURN ';'                    { sprintf (temp, "") ; // TODO: se ha de permitir un return vacío??
+                                                $$.code = gen_code (temp) ; }
             ;
 
 sentencias: sentencia ';'                                                   { sprintf (temp, "\t%s", $1.code) ;
@@ -322,6 +330,7 @@ typedef struct s_keyword { // para las palabras reservadas de C
 
 t_keyword keywords [] = { // define las palabras reservadas y los
     "main",        MAIN,           // y los token asociados
+    "return",      RETURN,
     "int",         INTEGER,
     "puts",        PUTS,
     "printf",      PRINT,
