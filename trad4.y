@@ -121,11 +121,11 @@ sentencias: sentencia ';'                                                   { sp
                                                                                 $$.code = gen_code (temp) ; }
             | sentencias WHILE '(' expresion ')' '{' sentencias '}'         { sprintf (temp, "%s\n\t(loop while %s do \n\t%s\n\t)", $1.code, $4.code, $7.code) ;
                                                                                 $$.code = gen_code (temp) ; }
-            | IF '(' expresion ')' '{' sentencia ';' '}' restif                { sprintf (temp, "\t(if %s \n\t%s\n\t%s)", $3.code, $6.code, $9.code) ;
+            | IF '(' expresion_condicional ')' '{' sentencia ';' '}' restif                { sprintf (temp, "\n\t(if %s \n\t%s\n\t%s)", $3.code, $6.code, $9.code) ;
                                                                                 $$.code = gen_code (temp) ; }
-            | sentencias IF '(' expresion ')' '{' sentencia ';' '}' restif     { sprintf (temp, "%s\t(if %s \n\t%s\n\t%s)", $1.code, $4.code, $7.code, $10.code) ;
-                                                                                $$.code = gen_code (temp) ; }
-            | FOR '(' var_assign ';' expresion_condicional ';' var_assign ')' '{' sentencias '}' { sprintf (temp, "\n\t%s\n\t(loop while %s do \n\t%s\n\t%s\n\t)", $3.code, $5.code, $10.code, $7.code) ;
+            | sentencias IF '(' expresion_condicional ')' '{' sentencia ';' '}' restif                      { sprintf (temp, "%s\n\t(if %s \n\t%s\n\t%s)", $1.code, $4.code, $7.code, $10.code) ;
+                                                                                                                $$.code = gen_code (temp) ; }
+            | FOR '(' var_assign ';' expresion_condicional ';' var_assign ')' '{' sentencias '}'            { sprintf (temp, "\n\t%s\n\t(loop while %s do \n\t%s\n\t%s\n\t)", $3.code, $5.code, $10.code, $7.code) ;
                                                                                                                 $$.code = gen_code (temp) ; }
             | sentencias FOR '(' var_assign ';' expresion_condicional ';' var_assign ')' '{' sentencias '}' { sprintf (temp, "%s\n\t%s\n\t(loop while %s do \n\t%s\n\t%s\n\t)", $1.code, $4.code, $6.code, $11.code, $8.code) ;
                                                                                                                 $$.code = gen_code (temp) ; }
@@ -218,7 +218,15 @@ expresion:      termino                  { $$ = $1 ; }
                                             $$.code = gen_code (temp) ; }
             ;
 
-expresion_condicional:  expresion AND expresion  { sprintf (temp, "(and %s %s)", $1.code, $3.code) ;
+expresion_condicional:  expresion '+' expresion  { sprintf (temp, "(/= 0 (+ %s %s))", $1.code, $3.code) ;
+                                                    $$.code = gen_code (temp) ; }
+                    |   expresion '-' expresion  { sprintf (temp, "(/= 0 (- %s %s))", $1.code, $3.code) ;
+                                                    $$.code = gen_code (temp) ; }
+                    |   expresion '*' expresion  { sprintf (temp, "(/= 0 (* %s %s))", $1.code, $3.code) ;
+                                                    $$.code = gen_code (temp) ; }
+                    |   expresion '/' expresion  { sprintf (temp, "(/= 0 (/ %s %s))", $1.code, $3.code) ;
+                                                    $$.code = gen_code (temp) ; }
+                    |   expresion AND expresion  { sprintf (temp, "(and %s %s)", $1.code, $3.code) ;
                                                     $$.code = gen_code (temp) ; }
                     |   expresion OR expresion   { sprintf (temp, "(or %s %s)", $1.code, $3.code) ;
                                                     $$.code = gen_code (temp) ; }

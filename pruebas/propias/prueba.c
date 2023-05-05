@@ -1,38 +1,7 @@
-int vector[5];
-
-mifuncion ( int parametroa , int parametrob ) {
-    puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
-    return (v * v);
-}
-
-mifuncion2 ( int parametroa , int parametrob ) {
-    puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
-    return v;
-}
-
-mifuncion ( int parametroa , int parametrob ) {
-    puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
-    return ;
-}
-
-mifuncion ( int parametroa , int parametrob ) {
-    puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
-}
-
-
 main ( ) {
     printf("%s", vector);
     int i = 0;
-    while (i < 5) {
-        vector[i] = i;
+    if (i + 5 + 4) {
         i = i + 1;
     }
     printf("%s", vector);
