@@ -1,5 +1,12 @@
 int vector[5];
 
+mifuncion ( parametro1, parametro2 ) {
+    puts("holaaa") ;
+    puts("holaaa") ;
+    puts("holaaa") ;
+
+}
+
 main ( ) {
     printf("%s", vector);
     int i = 0;

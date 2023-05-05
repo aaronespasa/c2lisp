@@ -85,11 +85,20 @@ declar_func: funcion                   { printf("%s\n", $1.code) ; }
             ;
 
 r_declar_func:                          { ; }
-                |    declar_func        { ; }
+                |      declar_func      { ; }
                 ;
 
-funcion:   MAIN '(' ')' '{' sentencias '}'  { sprintf (temp, "(defun main () \n%s\n)", $5.code) ;
-                                                $$.code = gen_code (temp) ; }
+funcion:   MAIN '(' ')' '{' sentencias '}'            { sprintf (temp, "(defun main () \n%s\n)", $5.code) ;
+                                                                    $$.code = gen_code (temp) ; }
+            | IDENTIF '(' parametros ')' '{' sentencias '}'      { sprintf (temp, "(defun %s (%s) \n\t%s\n)", $1.code, $3.code, $6.code) ;
+                                                                    $$.code = gen_code (temp) ; }
+            ;
+
+parametros:                                { ; }       
+            | IDENTIF ',' parametros        { sprintf (temp, "%s %s", $1.code, $3.code) ;
+                                                                    $$.code = gen_code (temp) ; }
+            | IDENTIF                      { sprintf (temp, "%s", $1.code) ;
+                                                                    $$.code = gen_code (temp) ; }
             ;
 
 sentencias: sentencia ';'                                                   { sprintf (temp, "\t%s", $1.code) ;
