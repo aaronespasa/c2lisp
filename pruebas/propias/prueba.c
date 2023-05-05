@@ -1,6 +1,6 @@
 int vector[5];
 
-mifuncion ( parametro1, parametro2 ) {
+mifuncion ( int parametroa , int parametrob ) {
     puts("holaaa") ;
     puts("holaaa") ;
     puts("holaaa") ;
