@@ -62,16 +62,12 @@ typedef struct s_attr {
 
 %%                            // Seccion 3 Gramatica - Semantico
 
-axioma:    r_declar_var declar_func      { ; }
-            ; 
+axioma: declar_var_funcs              { ; }
 
-declar_var: INTEGER variables ';'      { printf ("%s\n", $2.code) ; }
-            r_declar_var               { ; }
-            ;
-
-r_declar_var:                           { ; }
-                |    declar_var         { ; }
-                ;
+declar_var_funcs: INTEGER variables ';'        { printf ("%s\n", $2.code) ; }
+                  axioma                       { ; }
+                  | declar_func                { ; }
+                  ;
 
 declar_func: funcion                   { printf("%s\n", $1.code) ; }
             r_declar_func              { ; }
@@ -97,9 +93,15 @@ variable:    IDENTIF                    { sprintf (temp, "(setq %s 0)", $1.code)
 
 funcion:    MAIN '(' ')' '{' sentencias '}'            { sprintf (temp, "(defun main () \n%s\n)", $5.code) ;
                                                                     $$.code = gen_code (temp) ; }
-            | IDENTIF '(' parametros ')' '{' sentencias retorno '}'      { sprintf (temp, "(defun %s (%s) \n%s\n\t%s\n)", $1.code, $3.code, $6.code, $7.code) ;
+            | nombre_funcion '(' parametros ')' '{' sentencias '}'      { sprintf (temp, "(defun %s (%s) \n%s\n)", $1.code, $3.code, $6.code) ;
                                                                             $$.code = gen_code (temp) ; }
             ;
+
+nombre_funcion: IDENTIF                             { sprintf (temp, "%s", $1.code) ;
+                                                        $$.code = gen_code (temp) ; }
+                | INTEGER IDENTIF                   { sprintf (temp, "%s", $2.code) ;
+                                                        $$.code = gen_code (temp) ; }
+                ;
 
 parametros:                                         { $$.code = gen_code("") ; }       
             | INTEGER IDENTIF ',' parametros        { sprintf (temp, "%s %s", $2.code, $4.code) ;
@@ -115,12 +117,12 @@ argumentos:                                         { $$.code = gen_code("") ; }
                                                         $$.code = gen_code (temp) ; }
             ;
 
-retorno:                                    { ; }  // La funcion no contiene un return
-            | RETURN expresion ';'            { sprintf (temp, "%s", $2.code) ;
-                                                $$.code = gen_code (temp) ; }
-            | RETURN ';'                    { sprintf (temp, "") ; // TODO: se ha de permitir un return vacío??
-                                                $$.code = gen_code (temp) ; }
-            ;
+// retorno:                                    { ; }  // La funcion no contiene un return
+//             | RETURN expresion ';'            { sprintf (temp, "%s", $2.code) ;
+//                                                 $$.code = gen_code (temp) ; }
+//             | RETURN ';'                    { sprintf (temp, "") ;
+//                                                 $$.code = gen_code (temp) ; }
+//             ;
 
 sentencias: sentencia                                                       { sprintf (temp, "\t%s", $1.code) ;
                                                                                 $$.code = gen_code (temp) ; }
@@ -128,6 +130,16 @@ sentencias: sentencia                                                       { sp
                                                                                 $$.code = gen_code (temp) ; }  
             | sentencias INTEGER local_variables_declar ';' sentencias      { sprintf (temp, "%s\n\t(%s %s\t) ;", $1.code, $3.code, $5.code) ; 
                                                                                 $$.code = gen_code (temp) ; }
+            | sentencias RETURN retorno ';'                               { sprintf (temp, "%s\n\t(return-from %s%s)", $1.code, $0.code, $3.code) ;
+                                                                                $$.code = gen_code (temp) ; }
+            | RETURN retorno ';'                                          { sprintf (temp, "(return-from %s%s)", $0.code, $2.code) ;
+                                                                                $$.code = gen_code (temp) ; }
+            ;
+
+retorno:                                        { sprintf (temp, "") ;
+                                                    $$.code = gen_code (temp) ; }
+            | expresion                         { sprintf (temp, " %s", $1.code) ;
+                                                    $$.code = gen_code (temp) ; }
             ;
 
 sentencia:  var_assign ';'                                                                      { sprintf (temp, "%s", $1.code) ;
@@ -139,7 +151,7 @@ sentencia:  var_assign ';'                                                      
             | PRINT '(' STRING ',' impresion ')' ';'                                            { sprintf (temp, "%s", $5.code) ; 
                                                                                                     $$.code = gen_code (temp) ; }
             | WHILE '(' expresion ')' '{' sentencias '}'                                           { sprintf (temp, "\t(loop while %s do \n\t%s\n\t)", $3.code, $6.code) ;
-                                                                                                    $$.code = gen_code (temp) ; }
+                                                                                                    $$.code = gen_code (temp) ; }  // TODO: sentencias
             | IF '(' expresion_condicional ')' '{' sentencias_if '}' restif                       { sprintf (temp, "\n\t(if %s \n\t%s%s\t)", $3.code, $6.code, $8.code) ;
                                                                                                     $$.code = gen_code (temp) ; }
             | FOR '(' var_assign ';' expresion_condicional ';' var_assign ')' '{' sentencias '}'   { sprintf (temp, "\n\t%s\n\t(loop while %s do \n\t%s\n\t%s\n\t)", $3.code, $5.code, $10.code, $7.code) ;
@@ -157,10 +169,18 @@ restif:                                            { $$.code = gen_code("") ; }
                                                         $$.code = gen_code (temp) ; }
                 ;
 
-var_assign : IDENTIF '=' expresion                              { sprintf (temp, "(setq %s %s)", $1.code, $3.code) ; 
+var_assign:   IDENTIF '=' expresion                              { sprintf (temp, "(setq %s %s)", $1.code, $3.code) ; 
                                                                     $$.code = gen_code (temp) ; }
             | IDENTIF '[' num_or_identif ']' '=' num_or_identif { sprintf (temp, "(setf (aref %s %s) %s)", $1.code, $3.code, $6.code) ;
                                                                     $$.code = gen_code (temp) ; }
+            | IDENTIF ',' other_vars '=' other_vars         { sprintf (temp, "(setf (values %s %s) (values %s))", $1.code, $3.code, $5.code);
+                                                                    $$.code = gen_code (temp) ; }  // TODO: lo mismo es necesario pasarlo tmbn a las var locales
+            ;
+
+other_vars:   IDENTIF                         { sprintf (temp, "%s", $1.code) ;
+                                                $$.code = gen_code (temp) ; }
+            | IDENTIF ',' other_vars          { sprintf (temp, "%s %s", $1.code, $3.code) ;
+                                                $$.code = gen_code (temp) ; }
             ;
 
 num_or_identif: NUMBER        { sprintf (temp, "%d", $1.value) ;   $$.code = gen_code (temp) ; }
