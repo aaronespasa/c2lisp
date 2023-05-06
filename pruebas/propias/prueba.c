@@ -1,14 +1,18 @@
-int a = 1;
-main ( ) {
+int a = 3;
+
+int bar ( ) {
+    puts ( "hi" ) ;
+}
+
+func ( ) {
+    a, b = b, a;
+    a = b;
+    return ;
+    // a, b, c, d = b, a, d, c;
     printf("%s", "hii") ;
-    int b = 1, c = 2;
-    a = a + 5 ;
-    // {
-        int x ;
-        x = 24 ;
-        x = a * b ;
-        vector[i] = 5 ;
-    // }
-    puts ( "im out" ) ;
-    es_par (10, a) ;
+    return a;
+}
+
+main ( ) {
+    printf ("hi", "ho") ;
 }

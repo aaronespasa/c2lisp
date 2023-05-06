@@ -69,3 +69,6 @@ trad4
 
 # Mac
 .DS_Store
+
+# Visual Studio Code
+.vscode/
