@@ -1,6 +1,0 @@
-1. El ; no se puede poner al del main() debido al yylex
-2. Preguntar sobre la funcionalidad del vector
-3. Preguntar el return from -> no hay ejemplos
-
-
-1. Revisar el (null) en el condicional if
