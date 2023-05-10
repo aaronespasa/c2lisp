@@ -118,14 +118,9 @@ argumentos:                                         { $$.code = gen_code("") ; }
                                                         $$.code = gen_code (temp) ; }
             ;
 
-// TODO: Probar recursividad a derechas para eliminar los shift/reduce (7 o bueno, más, shift/reduce)
 sentencias: sentencia                                                       { sprintf (temp, "\t%s", $1.code) ;
                                                                                 $$.code = gen_code (temp) ; }
             | sentencias sentencia                                          { sprintf (temp, "%s\n\t%s", $1.code, $2.code) ;
-                                                                                $$.code = gen_code (temp) ; }  
-            | sentencias INTEGER local_variables_declar ';' sentencias      { sprintf (temp, "%s\n\t(%s %s\t)", $1.code, $3.code, $5.code) ; 
-                                                                                $$.code = gen_code (temp) ; }
-            | INTEGER local_variables_declar ';' sentencias                 { sprintf (temp, "(%s %s\t)", $2.code, $4.code) ; 
                                                                                 $$.code = gen_code (temp) ; }
             | sentencias '{' INTEGER local_variables_declar ';' sentencias_opt '}'    { sprintf(temp, "%s\n\t(%s\t%s\n\t)", $1.code, $4.code, $6.code) ;
                                                                                     $$.code = gen_code (temp) ;}
@@ -156,7 +151,6 @@ expresiones: expresion                              { sprintf (temp, "%s", $1.co
                                                         $$.code = gen_code (temp) ; }
             ;
 
-// TODO: for ( int a = 1, b = 3 ; ...)
 sentencia:  var_assign ';'                                                                      { sprintf (temp, "%s", $1.code) ;
                                                                                                     $$.code = gen_code (temp) ; }
             | IDENTIF '(' argumentos ')' ';'                                                     { sprintf (temp, "(%s %s)", $1.code, $3.code) ; 
@@ -173,6 +167,8 @@ sentencia:  var_assign ';'                                                      
                                                                                                     $$.code = gen_code (temp) ; }
             | FOR '(' var_assign ';' expresion_condicional ';' var_assign ')' '{' sentencias '}'   { sprintf (temp, "\n\t%s\n\t(loop while %s do \n\t%s\n\t%s\n\t)", $3.code, $5.code, $10.code, $7.code) ;
                                                                                                     $$.code = gen_code (temp) ; }
+            | INTEGER local_variables_declar ';' sentencias                                         { sprintf (temp, "(%s %s\t)", $2.code, $4.code) ; 
+                                                                                                         $$.code = gen_code (temp) ; }
             ;
 
 // TODO: Añadir todo lo de sentencias en sentencias_if teniendo cuidado de poner progn
@@ -315,10 +311,13 @@ termino:        operando                            { $$ = $1 ; }
                                                         $$.code = gen_code (temp) ; }    
             ;
 
+// TODO: Hacer función como operando
 operando:       IDENTIF                 { sprintf (temp, "%s", $1.code) ;
                                            $$.code = gen_code (temp) ; }
             |   NUMBER                  { sprintf (temp, "%d", $1.value) ;
                                            $$.code = gen_code (temp) ; }
+            // |   IDENTIF '(' argumentos ')' { sprintf (temp, "(%s %s)", $1.code, $3.code) ; 
+            //                                 $$.code = gen_code (temp) ; }
             |   '(' expresion ')'       { $$ = $2 ; }
             ;
 

@@ -1,5 +1,5 @@
 Para compilar con bison y ejecutarlo:
->> bison -d trad4.y && gcc -o trad4 trad4.tab.c && ./trad4
+>> bison -d trad.y && gcc -o trad trad.tab.c && ./trad
 
 Para ejecutar test:
->>> bison -d trad4.y && gcc -o trad4 trad4.tab.c && cat ./pruebas/propias/prueba.c | ./trad4 > prueba.l
+>>> bison -d trad.y && gcc -o trad trad.tab.c && cat ./pruebas/propias/prueba.c | ./trad > prueba.l

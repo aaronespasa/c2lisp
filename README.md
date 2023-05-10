@@ -6,7 +6,9 @@
 ## TODO:
 - [ ] Solucionar los shift/reduce conflictos
 - [ ] Realizar los TODOs
+- [ ] El return-from del main no funciona correctamente
 - [ ] Solucionar el //@ (main)
 - [ ] Probar todos los tests
 - [ ] Generar nuevos tests de forma concienzuda
 - [ ] Hacer el report
+- [ ] No se permite hacer return dentro de un ambito local -> syntax error
