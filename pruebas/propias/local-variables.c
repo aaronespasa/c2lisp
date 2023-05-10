@@ -1,6 +1,6 @@
-int a = 1;
+int a ;
 
-int es_par ( int v, int a) {
+es_par ( int v, int a) {
     int ep ;
     printf ("%d", v) ;
     if (v % 2 == 0) {
@@ -22,7 +22,7 @@ main ( ) {
         int x ;
         x = 24 ;
         x = a * b ;
-        vector[i] = 5 ;
+        // vector[i] = 5 ;
     }
     puts ( "im out" ) ;
     es_par (10, a) ;

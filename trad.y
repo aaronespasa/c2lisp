@@ -63,6 +63,7 @@ typedef struct s_attr {
 %%                            // Seccion 3 Gramatica - Semantico
 
 axioma: declar_var_funcs              { ; }
+        ;
 
 declar_var_funcs: INTEGER variables ';'        { printf ("%s\n", $2.code) ; }
                   axioma                       { ; }
@@ -137,8 +138,7 @@ sentencias_opt:                                { $$.code = gen_code("") ; }
                                                  $$.code = gen_code (temp) ; }
                 ;
 
-retorno:                                        { sprintf (temp, "") ;
-                                                    $$.code = gen_code (temp) ; }
+retorno:                                        { $$.code = gen_code ("") ; }
             | expresion                         { sprintf (temp, " %s", $1.code) ;
                                                     $$.code = gen_code (temp) ; }
             | expresion ',' expresiones             { sprintf (temp, " (values %s %s)", $1.code, $3.code) ;
@@ -151,6 +151,7 @@ expresiones: expresion                              { sprintf (temp, "%s", $1.co
                                                         $$.code = gen_code (temp) ; }
             ;
 
+ // TODO: La producción sentencia ::= INTEGER local_variables_declar ';' sentencias produce 9 SHIFT/REDUCE debido a SENTENCIAS A LA DERECHA
 sentencia:  var_assign ';'                                                                      { sprintf (temp, "%s", $1.code) ;
                                                                                                     $$.code = gen_code (temp) ; }
             | IDENTIF '(' argumentos ')' ';'                                                     { sprintf (temp, "(%s %s)", $1.code, $3.code) ; 
@@ -167,8 +168,10 @@ sentencia:  var_assign ';'                                                      
                                                                                                     $$.code = gen_code (temp) ; }
             | FOR '(' var_assign ';' expresion_condicional ';' var_assign ')' '{' sentencias '}'   { sprintf (temp, "\n\t%s\n\t(loop while %s do \n\t%s\n\t%s\n\t)", $3.code, $5.code, $10.code, $7.code) ;
                                                                                                     $$.code = gen_code (temp) ; }
-            | INTEGER local_variables_declar ';' sentencias                                         { sprintf (temp, "(%s %s\t)", $2.code, $4.code) ; 
+            | INTEGER local_variables_declar ';' sentencias                                         { sprintf (temp, "(%s %s\t)", $2.code, $4.code) ;
                                                                                                          $$.code = gen_code (temp) ; }
+            // | INTEGER local_variables_declar ';'                                         { sprintf (temp, "(%s\t)", $2.code) ; 
+            //                                                                                              $$.code = gen_code (temp) ; }
             ;
 
 // TODO: Añadir todo lo de sentencias en sentencias_if teniendo cuidado de poner progn
