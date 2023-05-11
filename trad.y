@@ -16,6 +16,7 @@ char *int_to_string (int) ;
 char *char_to_string (char) ;
 
 char temp [2048] ;
+char var_name [128] ;
 
 // Definitions for explicit attributes
 
@@ -25,10 +26,11 @@ typedef struct s_attr {
 } t_attr ;
 
 
-
 #define YYSTYPE t_attr
 
 %}
+
+
 
 // Definitions for explicit attributes
 
@@ -39,7 +41,7 @@ typedef struct s_attr {
 %token STRING           // identifica las cadenas literales
 %token PUTS             // identifica la impresión de cadenas literales
 %token PRINT            // identifica la impresión de cadenas literales y expresiones
-%token MAIN             // identifica el comienzo del proc. main
+// %token MAIN             // identifica el comienzo del proc. main
 %token WHILE            // identifica el bucle main
 %token FOR              // identifica el bucle for
 %token IF               // identifica el condicional if
@@ -92,16 +94,15 @@ variable:    IDENTIF                    { sprintf (temp, "(setq %s 0)", $1.code)
                                            $$.code = gen_code (temp) ; }
             ;
 
-// TODO: Buscar donde está el shift/reduce añadido
-funcion:    MAIN '(' ')' '{' sentencias '}'            { sprintf (temp, "(defun main () \n%s\n)", $5.code) ;
-                                                                    $$.code = gen_code (temp) ; }
-            | nombre_funcion '(' parametros ')' '{' sentencias '}'      { sprintf (temp, "(defun %s (%s) \n%s\n)", $1.code, $3.code, $6.code) ;
+funcion:    nombre_funcion '(' parametros ')' '{' sentencias '}'      { sprintf (temp, "(defun %s (%s) \n\t%s\n)", $1.code, $3.code, $6.code) ;                                                   
                                                                             $$.code = gen_code (temp) ; }
             ;
 
-nombre_funcion: IDENTIF                             { sprintf (temp, "%s", $1.code) ;
+nombre_funcion: IDENTIF                             { strcpy(var_name, $1.code) ;
+                                                        sprintf (temp, "%s", $1.code) ;
                                                         $$.code = gen_code (temp) ; }
-                | INTEGER IDENTIF                   { sprintf (temp, "%s", $2.code) ;
+                | INTEGER IDENTIF                   { strcpy(var_name, $2.code) ;
+                                                      sprintf (temp, "%s", $2.code) ;
                                                         $$.code = gen_code (temp) ; }
                 ;
 
@@ -131,9 +132,9 @@ sentencias: sentencia                                                       { sp
                                                                                 $$.code = gen_code (temp) ; }
             | INTEGER local_variables_declar ';'                            { sprintf (temp, "(%s)", $2.code) ; 
                                                                                 $$.code = gen_code (temp) ; }
-            | RETURN retorno ';' sentencias                                 { sprintf (temp, "(return-from %s%s)\n\t%s", $0.code, $2.code, $4.code) ;
+            | RETURN retorno ';' sentencias                                 { sprintf (temp, "(return-from %s%s)\n\t%s", var_name, $2.code, $4.code) ;
                                                                                 $$.code = gen_code (temp) ; }
-            | RETURN retorno ';'                                            { sprintf (temp, "(return-from %s%s)", $0.code, $2.code) ;
+            | RETURN retorno ';'                                            {  sprintf (temp, "(return-from %s%s)", var_name, $2.code) ;
                                                                                 $$.code = gen_code (temp) ; }
             ;
 
@@ -380,7 +381,7 @@ typedef struct s_keyword { // para las palabras reservadas de C
 } t_keyword ;
 
 t_keyword keywords [] = { // define las palabras reservadas y los
-    "main",        MAIN,           // y los token asociados
+    // "main",        MAIN,           // y los token asociados
     "return",      RETURN,
     "int",         INTEGER,
     "puts",        PUTS,
