@@ -316,7 +316,7 @@ termino:        operando                            { $$ = $1 ; }
                                                         $$.code = gen_code (temp) ; } 
             | IDENTIF                               { sprintf (temp, "%s", $1.code) ;
                                                         $$.code = gen_code (temp) ; }
-            | IDENTIF '(' argumentos ')' { sprintf (temp, "(%s (%s))", $1.code, $3.code) ; // TODO: Cambiar semántica
+            | IDENTIF '(' argumentos ')' { sprintf (temp, "(%s %s)", $1.code, $3.code) ; // TODO: Cambiar semántica
                                             $$.code = gen_code (temp) ; }
             | IDENTIF '[' expresion ']' { sprintf (temp, "(aref %s %s)", $1.code, $3.code) ;  // 1 shift/reduce
                                             $$.code = gen_code (temp) ; }
