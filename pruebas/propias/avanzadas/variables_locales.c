@@ -27,4 +27,8 @@ main ( ) {
     puts ( "im out" ) ;
     es_par (10, a) ;
     return a ;
+
+//     system ("pause") ;
 }
+
+//@ (main)

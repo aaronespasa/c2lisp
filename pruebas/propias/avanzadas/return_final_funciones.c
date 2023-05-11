@@ -1,30 +1,28 @@
+// Test encargado de probar el correcto funcionamiento del return final en las funciones
+
 int vector[5];
 
 mifuncion ( int parametroa , int parametrob ) {
-    puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
+    puts("hola") ;
+    puts("mundo") ;
     return (v * v);
 }
 
 mifuncion2 ( int parametroa , int parametrob ) {
-    puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
+    puts("hola") ;
+    puts("mundo") ;
     return v;
 }
 
 mifuncion ( int parametroa , int parametrob ) {
     puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
+    puts("mundo") ;
     return ;
 }
 
 mifuncion ( int parametroa , int parametrob ) {
     puts("holaaa") ;
-    puts("holaaa") ;
-    puts("holaaa") ;
+    puts("mundo") ;
 }
 
 
@@ -40,6 +38,8 @@ main ( ) {
     printf("%s", vector[0]);
     printf("%s", vector);
     printf("%s", vector[10]);
+
+//     system ("pause") ;
 }
 
-//@ (main) 
+//@ (main)
