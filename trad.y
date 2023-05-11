@@ -186,12 +186,9 @@ restif:                                            { $$.code = gen_code("") ; }
                                                         $$.code = gen_code (temp) ; }
                 ;
 
-// TODO: probar con el ejecutador de lisp si la reasignación de variables/vectores usa un "entorno" local
 var_assign:   IDENTIF '=' expresion                                          { sprintf (temp, "(setf %s %s)", $1.code, $3.code) ; 
                                                                                 $$.code = gen_code (temp) ; }
             | IDENTIF '[' expresion ']' '=' expresion              { sprintf (temp, "(setf (aref %s %s) %s)", $1.code, $3.code, $6.code) ;
-                                                                                $$.code = gen_code (temp) ; }
-            | IDENTIF '=' IDENTIF '(' argumentos ')'                         { sprintf (temp, "(setf %s (%s %s))", $1.code, $3.code, $5.code);
                                                                                 $$.code = gen_code (temp) ; }
             | IDENTIF ',' other_vars_left '=' IDENTIF '(' argumentos ')'     { sprintf (temp, "(setf (values %s %s) (%s %s))", $1.code, $3.code, $5.code, $7.code);
                                                                                 $$.code = gen_code (temp) ; }
@@ -229,7 +226,6 @@ local_variables:  local_variable                    { sprintf (temp, "%s", $1.co
                                                         $$.code = gen_code (temp) ; }
             ;
 
-// TODO: Solucionar semántica de IDENTIF = IDENTIF '(' argumentos ')'
 local_variable:    IDENTIF                         { sprintf (temp, "(%s 0)", $1.code) ;
                                                         $$.code = gen_code (temp) ; }
             | IDENTIF '[' expresion ']'               { sprintf (temp, "(%s (make-array %d))", $1.code, $3.value) ;
@@ -308,7 +304,6 @@ expresion_condicional:  expresion '+' expresion  { sprintf (temp, "(/= 0 (+ %s %
                                                     $$.code = gen_code (temp) ; }
                     ;
 
-// TODO: 1 shift/reduce y 2 reduce/reduce en IDENTIF '(' argumentos ')'
 termino:        operando                            { $$ = $1 ; }                          
             |   '+' operando %prec UNARY_SIGN       { sprintf (temp, "(+ %s)", $2.code) ;
                                                         $$.code = gen_code (temp) ; }
@@ -316,7 +311,7 @@ termino:        operando                            { $$ = $1 ; }
                                                         $$.code = gen_code (temp) ; } 
             | IDENTIF                               { sprintf (temp, "%s", $1.code) ;
                                                         $$.code = gen_code (temp) ; }
-            | IDENTIF '(' argumentos ')' { sprintf (temp, "(%s %s)", $1.code, $3.code) ; // TODO: Cambiar semántica
+            | IDENTIF '(' argumentos ')' { sprintf (temp, "(%s %s)", $1.code, $3.code) ;
                                             $$.code = gen_code (temp) ; }
             | IDENTIF '[' expresion ']' { sprintf (temp, "(aref %s %s)", $1.code, $3.code) ;  // 1 shift/reduce
                                             $$.code = gen_code (temp) ; }
