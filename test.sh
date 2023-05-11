@@ -31,9 +31,28 @@ file_paths=(
 for file_path in "${file_paths[@]}"; do
     type=$(dirname "$file_path")
     filename=$(basename "$file_path")
+    # remove the .c extension and add .lisp
+    lisp_filename="${filename%.*}.lisp"
     mkdir -p "./resultado/$type"
-    output=$(cat "./pruebas/$file_path" | ./trad 2>&1 > "./resultado/$type/$filename")
+    output=$(cat "./pruebas/$file_path" | ./trad 2>&1 > "./resultado/$type/$lisp_filename")
     if [[ $output =~ "syntax error" ]]; then
         echo "❌ The file $filename has failed"
     fi
+done
+
+# Loop through all subdirectories in the "resultado" folder
+find ./resultado -type d | while read -r subdir; do
+    # Loop through all .lisp files in the current subdirectory
+    find "$subdir" -type f -name "*.lisp" | while read -r lisp_file; do
+        # Compile the .lisp file with clisp
+        output=$(clisp "$lisp_file" 2>&1)
+        
+        # Check if the output starts with "*** - SYSTEM"
+        if [[ $output =~ ^\*\*\*\ -\ SYSTEM ]]; then
+            # Get the filename without the path
+            filename=$(basename "$lisp_file")
+            # Print an error message
+            echo "❌ The file $filename has an incorrect semantic"
+        fi
+    done
 done
