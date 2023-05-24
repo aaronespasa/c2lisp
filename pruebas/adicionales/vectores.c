@@ -1,10 +1,9 @@
-int vector[5];
+// Prueba de la definicion de vectores en c
 
 main ( ) {
     printf("%s", vector);
     int i = 0;
-    while (i < 5) {
-        vector[i] = i;
+    if (i + 5 + 4) {
         i = i + 1;
     }
     printf("%s", vector);
@@ -12,4 +11,9 @@ main ( ) {
     printf("%s", vector[0]);
     printf("%s", vector);
     printf("%s", vector[10]);
+
+//     system ("pause") ;
 }
+
+//@ (main)
+

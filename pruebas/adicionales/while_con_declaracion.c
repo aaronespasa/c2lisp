@@ -17,9 +17,10 @@ main ( ) {
         puts ( "Hola\n" );
         i = i + 1;
     }
-    puts ( "hey man\n" ) ;
+    puts ( "hey\n" ) ;
 
 //     system ("pause") ;
 }
 
 //@ (main)
+

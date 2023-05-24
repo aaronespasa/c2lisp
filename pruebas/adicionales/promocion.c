@@ -1,5 +1,3 @@
-// Prueba de la definicion de vectores en c
-
 main ( ) {
     printf("%s", vector);
     int i = 0;
@@ -16,3 +14,4 @@ main ( ) {
 }
 
 //@ (main)
+

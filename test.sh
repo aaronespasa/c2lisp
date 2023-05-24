@@ -26,6 +26,19 @@ file_paths=(
     "iniciales/printf2.c"
     "iniciales/puts1.c"
     "iniciales/while1.c"
+    "adicionales/ambito_anidado.c"
+    "adicionales/asignacion_variables_vectores.c"
+    "adicionales/asignaciones_multiples.c"
+    "adicionales/condicional_funciones.c"
+    "adicionales/complejo1.c"
+    "adicionales/complejo2.c"
+    "adicionales/funciones.c"
+    "adicionales/local-variables.c"
+    "adicionales/promocion.c"
+    "adicionales/return_final_funciones.c"
+    "adicionales/variables_locales.c"
+    "adicionales/vectores.c"
+    "adicionales/while_con_declaracion.c"
 )
 
 for file_path in "${file_paths[@]}"; do

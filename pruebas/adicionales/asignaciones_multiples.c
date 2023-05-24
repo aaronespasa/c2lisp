@@ -1,3 +1,5 @@
+// Prueba encargada de comprobar el correcto funcionamiento del ambito anidado (+ asignaciones multiples + return + printf)
+
 int a = 3;
 
 int bar ( ) {
@@ -22,4 +24,9 @@ main () {
         printf("%d\n", a) ;
     }
     printf("%d\n", a) ;
+
+//     system ("pause") ;
 }
+
+//@ (main)
+

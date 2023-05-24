@@ -11,7 +11,6 @@ es_par ( int v, int a) {
         ep = 0 ;
     }
     return ep ;
-    return v ;
 }
 
 main ( ) {
@@ -22,13 +21,15 @@ main ( ) {
         int x ;
         x = 24 ;
         x = a * b ;
-        // vector[i] = 5 ;
+        vector[i] = 5 ;
+        return x ;
     }
     puts ( "im out" ) ;
     es_par (10, a) ;
     return a ;
-
+    puts ( "im after return" ) ;
 //     system ("pause") ;
 }
 
 //@ (main)
+

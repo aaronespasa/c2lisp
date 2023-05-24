@@ -1,3 +1,5 @@
+// Prueba para comprobar el correcto funcionamiento de los condicionales dentro de funciones
+
 es_par (int v) {
     int ep ;
     printf ("%d", v) ;
@@ -13,5 +15,10 @@ es_par (int v) {
 
 main ( ) {
     puts ("hi") ;
-    // es_par(10) ;
+    es_par(10) ;
+
+//     system ("pause") ;
 }
+
+//@ (main)
+

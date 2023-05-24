@@ -25,7 +25,6 @@ mifuncion ( int parametroa , int parametrob ) {
     puts("mundo") ;
 }
 
-
 main ( ) {
     printf("%s", vector);
     int i = 0;
@@ -43,3 +42,4 @@ main ( ) {
 }
 
 //@ (main)
+

@@ -1,12 +1,11 @@
-// Prueba encargada de comprobar el correcto funcionamiento del ambito anidado (+ asignaciones multiples + return + printf)
-
-int a = 3;
+int a ;
 
 int bar ( ) {
     puts ( "hi" ) ;
 }
 
 func ( ) {
+    int b = 10 ;
     a, b = b, a;
     a = b;
     return ;
@@ -25,7 +24,8 @@ main () {
     }
     printf("%d\n", a) ;
 
-//     system ("pause") ;
+//     system("pause") ;
 }
 
 //@ (main)
+
